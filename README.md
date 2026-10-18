@@ -34,3 +34,4 @@ Run `supabase/wallet.sql` after `admin.sql`. Everything that moves money lives i
 - Holding customer money may need a licence or a payments partner in Nigeria. Check with a lawyer before going live.
 
 See SETUP.md for the full Supabase, GitHub and Vercel steps. Run the SQL files in this order: schema, admin, wallet, extras.
+"# mifask" 
