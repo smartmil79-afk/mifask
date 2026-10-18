@@ -4,31 +4,39 @@ import { NextResponse, type NextRequest } from "next/server";
 export async function middleware(req: NextRequest) {
   let res = NextResponse.next({ request: req });
   
-  // Guard clause to protect Edge routing from crashing on server boots
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  // If environment configurations are missing or loading slowly, bypass to prevent a 500 crash
+  if (!supabaseUrl || !supabaseAnonKey) {
     return res;
   }
 
   try {
-    const s = createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY, {
-      cookies: { 
-        getAll: () => {
-          try { return req.cookies.getAll(); } catch { return []; }
-        }, 
-        setAll: (l: any) => { 
+    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+      cookies: {
+        getAll() {
+          return req.cookies.getAll().map(({ name, value }) => ({ name, value }));
+        },
+        setAll(cookiesToSet) {
           try {
-            l.forEach(({ name, value }: any) => req.cookies.set(name, value)); 
-            res = NextResponse.next({ request: req }); 
-            l.forEach(({ name, value, options }: any) => res.cookies.set(name, value, options)); 
-          } catch {}
-        } 
+            cookiesToSet.forEach(({ name, value }) => req.cookies.set(name, value));
+            res = NextResponse.next({ request: req });
+            cookiesToSet.forEach(({ name, value, options }) =>
+              res.cookies.set(name, value, options)
+            );
+          } catch (error) {
+            // Safely swallow edge cookies mutations mutations gracefully
+          }
+        },
       },
     });
-    await s.auth.getUser();
+
+    await supabase.auth.getUser();
   } catch (e) {
-    console.error("Middleware Auth Intercept Exception:", e);
+    console.error("Supabase middleware error:", e);
   }
-  
+
   return res;
 }
 
