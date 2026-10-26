@@ -9,10 +9,10 @@ export async function middleware(req: NextRequest) {
     const s = createServerClient(url, key, {
       cookies: {
         getAll: () => req.cookies.getAll(),
-        setAll: (l) => {
-          l.forEach(({ name, value }) => req.cookies.set(name, value));
+        setAll: (l: any) => {
+          l.forEach(({ name, value }: any) => req.cookies.set(name, value));
           res = NextResponse.next({ request: req });
-          l.forEach(({ name, value, options }) => res.cookies.set(name, value, options));
+          l.forEach(({ name, value, options }: any) => res.cookies.set(name, value, options));
         },
       },
     });
