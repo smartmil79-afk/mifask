@@ -1,36 +1,23 @@
-const { createServerClient } = require("@supabase/ssr");
-const { NextResponse } = require("next/server");
-
-async function middleware(req) {
+import { createServerClient } from "@supabase/ssr";
+import { NextResponse, type NextRequest } from "next/server";
+export async function middleware(req: NextRequest) {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   let res = NextResponse.next({ request: req });
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!supabaseUrl || !supabaseAnonKey) return res;
-
+  if (!url || !key) return res;
   try {
-    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+    const s = createServerClient(url, key, {
       cookies: {
-        getAll() {
-          return req.cookies.getAll().map(({ name, value }) => ({ name, value }));
-        },
-        setAll(cookiesToSet) {
-          try {
-            cookiesToSet.forEach(({ name, value }) => req.cookies.set(name, value));
-            res = NextResponse.next({ request: req });
-            cookiesToSet.forEach(({ name, value, options }) => res.cookies.set(name, value, options));
-          } catch (error) {}
+        getAll: () => req.cookies.getAll(),
+        setAll: (l) => {
+          l.forEach(({ name, value }) => req.cookies.set(name, value));
+          res = NextResponse.next({ request: req });
+          l.forEach(({ name, value, options }) => res.cookies.set(name, value, options));
         },
       },
     });
-    await supabase.auth.getUser();
-  } catch (e) {}
-
+    await s.auth.getUser();
+  } catch {}
   return res;
 }
-
-const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
-};
-
-module.exports = { middleware, config };
+export const config = { matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"] };
