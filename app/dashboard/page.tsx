@@ -6,7 +6,7 @@ import Link from "next/link";
 export const dynamic = "force-dynamic";
 async function del(fd: FormData) { "use server"; await supabaseServer().from("ads").delete().eq("id", fd.get("id") as string); redirect("/dashboard"); }
 async function toggleSold(fd: FormData) { "use server"; await supabaseServer().from("ads").update({ sold: fd.get("v") === "1" }).eq("id", fd.get("id") as string); redirect("/dashboard"); }
-export default async function Dashboard() {
+export default async function Dashboard({ searchParams }: { searchParams: { verified?: string } }) {
   const s = supabaseServer(); const { data: { user } } = await s.auth.getUser(); if (!user) redirect("/login");
   const { data: ads } = await s.from("ads").select("*, promotions(plan, status, ends_at)").eq("seller_id", user.id).order("created_at", { ascending: false });
   const now = Date.now();
@@ -15,6 +15,7 @@ export default async function Dashboard() {
   const active = (a: any) => a.promotions?.filter((p: any) => p.status === "paid" && new Date(p.ends_at).getTime() > now).sort((x: any, y: any) => +new Date(y.ends_at) - +new Date(x.ends_at))[0];
   const nActive = ads?.filter(active).length ?? 0, views = ads?.reduce((n, a) => n + a.views, 0) ?? 0;
   return (<>
+    {searchParams.verified && <div className="note okbar" style={{ marginTop: 18 }}>✓ Email verified. Welcome to Mifask!</div>}
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", margin: "18px 0" }}><h2 style={{ margin: 0 }}>My dashboard</h2><Link className="btn" href="/post">+ Post new ad</Link></div>
     <div className="grid" style={{ gridTemplateColumns: "repeat(auto-fit,minmax(130px,1fr))" }}>
       {[["My ads", ads?.length ?? 0], ["Sponsored now", nActive], ["Total views", views]].map(([l, v]) => <div key={l as string} className="card info"><div className="price" style={{ fontSize: "1.6rem" }}>{v}</div>{l}</div>)}</div>

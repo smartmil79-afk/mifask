@@ -7,11 +7,12 @@ export const PLANS = {
 } as const;
 export type PlanKey = keyof typeof PLANS;
 export const naira = (n: number) => "₦" + Number(n).toLocaleString("en-NG");
-export const TOKEN_COST = { basic: 7, pro: 30, premium: 55 } as const; // keep in sync with supabase/wallet.sql
+export const TOKEN_COST = { basic: 35, pro: 55, premium: 65 } as const; // keep in sync with supabase/wallet.sql
 export const BANKS = ["Access Bank","Zenith Bank","GTBank","First Bank","UBA","Opay","Kuda","Moniepoint","Palmpay","Wema Bank","Sterling Bank","Fidelity Bank","Union Bank","Stanbic IBTC","FCMB","Polaris Bank","Ecobank","Keystone Bank"];
 export const CAT_FIELD: Record<string, { label: string; options?: string[]; placeholder?: string }> = {
   Services: { label: "Services rendered", placeholder: "e.g. Plumbing, pipe fitting, installations" },
   Jobs: { label: "Job type", options: ["Full-time", "Part-time", "Contract", "Internship"] },
+  Animals: { label: "Age", options: ["Baby", "Young", "Adult"] },
   Property: { label: "Listing type", options: ["For rent", "For sale", "Short let"] },
 };
 export const condText = (cat: string, cond: string) => {
@@ -20,3 +21,5 @@ export const condText = (cat: string, cond: string) => {
 };
 // EDIT THESE before launch: the bank account where customers send transfers.
 export const BANK_DETAILS = { bank: "Opay", number: "8121483131", name: "Muammil Akilu Idris" };
+export const CAT_ICONS: Record<string, string> = { Vehicles: "🚗", Property: "🏠", "Phones & Tablets": "📱", Electronics: "💻", Fashion: "👗", "Home & Garden": "🛋️", Services: "🔧", Animals: "🐕", Jobs: "💼" };
+export const POPULAR = ["iPhone", "Toyota Camry", "Laptop", "Generator", "Plumber", "3 bedroom flat"];

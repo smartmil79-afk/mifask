@@ -37,14 +37,14 @@ begin
   return r;
 end $$;
 
--- Buy a promotion with wallet money or tokens. Prices: Basic 1000 / 7 tokens / 7 days, Pro 3000 / 30 / 30 days, Premium 5000 / 55 / 60 days.
+-- Buy a promotion with wallet money or tokens. Prices: Basic 1000 / 35 tokens / 7 days, Pro 3000 / 55 / 30 days, Premium 5000 / 65 / 60 days.
 create function buy_promo(p_ad uuid, p_plan text, p_method text) returns void language plpgsql security definer set search_path = public as $$
 declare u uuid := auth.uid(); v_cost bigint; v_tok int; v_days int; v_rank int; w wallets; v_start timestamptz;
 begin
   if u is null then raise exception 'not signed in'; end if;
   if not exists (select 1 from ads where id = p_ad and seller_id = u) then raise exception 'not your ad'; end if;
   select case p_plan when 'basic' then 1000 when 'pro' then 3000 when 'premium' then 5000 end,
-         case p_plan when 'basic' then 7 when 'pro' then 30 when 'premium' then 55 end,
+         case p_plan when 'basic' then 35 when 'pro' then 55 when 'premium' then 65 end,
          case p_plan when 'basic' then 7 when 'pro' then 30 when 'premium' then 60 end,
          case p_plan when 'basic' then 1 when 'pro' then 2 when 'premium' then 3 end
     into v_cost, v_tok, v_days, v_rank;
