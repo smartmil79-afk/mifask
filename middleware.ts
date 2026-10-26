@@ -20,4 +20,8 @@ export async function middleware(req: NextRequest) {
   } catch {}
   return res;
 }
+<<<<<<< HEAD
 export const config = { matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"] };
+=======
+export const config = { matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"] };
+>>>>>>> 892d6f1d799f8be3fc7994100e2319dcc49a9fca
