@@ -10,7 +10,7 @@ You need: Node.js 20+, Git, and free accounts on Supabase, GitHub and Vercel.
 ## 1. Supabase
 1. supabase.com > New project. Save the database password.
 2. SQL Editor > New query. Paste and Run each file from the `supabase/` folder **in this order**:
-   `schema.sql`, `admin.sql`, `wallet.sql`, `extras.sql`, `manual.sql`, then `update1.sql`. Optional: `seed.sql` adds sample listings (run it after you sign up and make yourself admin).
+   `schema.sql`, `admin.sql`, `wallet.sql`, `extras.sql`, `manual.sql`, then `update1.sql`, then `messages.sql` (buyer-seller chat). Optional: `seed.sql` adds sample listings (run it after you sign up and make yourself admin).
 3. Storage: you should see two buckets, `ad-images` (public) and `receipts` (private).
 4. Authentication > Sign In / Providers: Email on. Authentication > URL Configuration: add `https://YOUR-SITE/auth/callback` (or `https://YOUR-SITE/**`) under Redirect URLs so verification links sign people in.
 5. Settings > API Keys (or Connect): copy the Project URL, the publishable key (`sb_publishable_...`) and the secret key (`sb_secret_...`).

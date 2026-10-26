@@ -9,6 +9,11 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
   if (!ad) return { title: "Ad not found" };
   return { title: ad.title, description: `${naira(ad.price)} · ${String(ad.description).slice(0, 140)}`, openGraph: { title: ad.title, images: ad.images?.[0] ? [ad.images[0]] : [] } };
 }
+async function chat(fd: FormData) {
+  "use server";
+  const { data, error } = await supabaseServer().rpc("start_conversation", { p_ad: fd.get("id") as string });
+  redirect(error || !data ? "/messages?e=" + encodeURIComponent(error?.message ?? "Could not start the chat") : `/messages/${data}`);
+}
 async function pay(fd: FormData) {
   "use server";
   const { error } = await supabaseServer().rpc("pay_for_ad", { p_ad: fd.get("id") as string });
@@ -27,6 +32,7 @@ export default async function AdPage({ params, searchParams }: { params: { id: s
     <div className="price" style={{ fontSize: "1.6rem" }}>{naira(ad.price)}</div><h2 style={{ margin: "4px 0" }}>{ad.title}</h2>
     <div className="meta">{[ad.category, condText(ad.category, ad.condition), ad.state].filter(Boolean).join(" · ")} · {ad.views} views</div><p>{ad.description}</p>
     <p className="meta">Seller: <b>{ad.profiles?.name || "Member"}</b></p>
+    {user && user.id !== ad.seller_id && (<form action={chat} style={{ marginBottom: 8 }}><input type="hidden" name="id" value={ad.id} /><button className="btn">💬 Chat with seller</button></form>)}
     {user ? <div style={{ display: "flex", gap: 8 }}><span className="btn alt">{ad.phone}</span><a className="btn" href={wa}>WhatsApp</a></div> : <a className="btn" href="/login">Sign in to contact seller</a>}
     {ad.sold && <p><span className="badge">SOLD</span></p>}
     {user && user.id !== ad.seller_id && !ad.sold && (<form action={pay} style={{ marginTop: 12 }}><input type="hidden" name="id" value={ad.id} />

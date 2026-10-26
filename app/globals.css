@@ -299,3 +299,16 @@ header{border-bottom:1px solid rgba(255,255,255,.06)}
 .fb{margin-top:8px;font-size:.8rem;color:var(--mut)}.fb button{border:0;background:var(--surf);border-radius:999px;padding:3px 9px;margin-left:6px;cursor:pointer}
 .teaser{position:fixed;right:18px;bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:49;max-width:240px;padding:12px 14px;border-radius:18px 18px 4px 18px;background:var(--surf);border:1px solid var(--line);box-shadow:var(--sh);font-size:.88rem;font-weight:600;cursor:pointer;text-align:left;color:var(--ink);animation:msgIn .5s both}
 @media(max-width:760px){.teaser{bottom:calc(150px + env(safe-area-inset-bottom,0px))}.search.big{border-radius:28px;flex-wrap:wrap}.search.big input{flex-basis:100%}.search.big .btn{flex:1}}
+
+/* chat with seller */
+.room{max-width:760px;margin:18px auto}
+.rhead{display:flex;gap:12px;align-items:center;margin-bottom:10px}
+.thread{display:flex;flex-direction:column;gap:8px;height:min(56vh,520px);overflow-y:auto;padding:14px;background:var(--surf);border:1px solid var(--line);border-radius:24px;margin:12px 0}
+.bub{max-width:78%;padding:9px 13px;border-radius:18px;white-space:pre-wrap;word-break:break-word;animation:msgIn .3s both}
+.bub small{display:block;opacity:.6;font-size:.68rem;margin-top:3px}
+.bub.me{align-self:flex-end;background:var(--btn);color:var(--btn-ink);border-bottom-right-radius:6px}
+.bub.them{align-self:flex-start;background:var(--soft);border-bottom-left-radius:6px}
+.sendbar{display:flex;gap:8px}.sendbar input{flex:1}
+.conv{text-decoration:none;transition:transform .2s}.conv:hover{transform:translateY(-2px)}
+.clip{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.strong{color:var(--ink);font-weight:700}
+.dot{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 6px;border-radius:99px;background:#ff5d5d;color:#fff;font-size:.7rem;font-weight:800;margin-left:6px}
