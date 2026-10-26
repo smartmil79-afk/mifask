@@ -19,6 +19,8 @@ async function settle(fd: FormData) { "use server"; const s = await guard(); awa
 
 async function payout(fd: FormData) { "use server"; const s = await guard(); await s.rpc("settle_withdrawal", { p_id: fd.get("id") as string, p_paid: fd.get("paid") === "1" }); revalidatePath("/admin"); }
 
+async function reviewPay(fd: FormData) { "use server"; const s = await guard(); await s.rpc("review_manual_payment", { p_id: fd.get("id") as string, p_ok: fd.get("ok") === "1" }); revalidatePath("/admin"); }
+
 export default async function Admin() {
   const s = await guard();
   const count = async (t: string) => (await s.from(t).select("*", { count: "exact", head: true })).count ?? 0;
@@ -29,6 +31,8 @@ export default async function Admin() {
   const { data: recent } = await s.from("ads").select("id, title, price, state, created_at, profiles(name)").order("created_at", { ascending: false }).limit(30);
   const { data: held } = await s.from("orders").select("*").eq("status", "held").order("created_at");
   const { data: wds } = await s.from("withdrawals").select("*").eq("status", "pending").order("created_at");
+  const { data: mps } = await s.from("manual_payments").select("*").eq("status", "pending").order("created_at");
+  const receipts = await Promise.all((mps ?? []).map(async (m) => ({ ...m, url: (await s.storage.from("receipts").createSignedUrl(m.receipt_path, 3600)).data?.signedUrl })));
   const stats: [string, string | number][] = [["Ads", nAds], ["Users", nUsers], ["Open reports", nReports], ["Active promotions", nActive], ["Promo revenue", naira(revenue)]];
   return (<>
     <h2 style={{ marginTop: 18 }}>Admin</h2>
@@ -41,6 +45,14 @@ export default async function Admin() {
       {r.ads && <form action={removeAd}><input type="hidden" name="id" value={r.ads.id} /><button className="btn sm">Remove ad</button></form>}
       <form action={dismiss}><input type="hidden" name="id" value={r.id} /><button className="btn sm alt">Dismiss</button></form></div>))
       : <p className="meta">No reports. All clear.</p>}
+    <h3>Payment receipts to confirm</h3>
+    <p className="meta">Approve ONLY after you see the money in your bank account. A receipt image alone can be faked. Check the amount and the transaction ID.</p>
+    {receipts.length ? receipts.map((m) => (<div key={m.id} className="li"><div style={{ flex: 1, minWidth: 220 }}>
+      <b>{naira(m.amount)}</b> · {m.kind === "promo" ? `Sponsor "${m.ad_title ?? "ad"}" (${m.plan})` : "Wallet top-up"}
+      <div className="meta">Transaction ID: <b>{m.reference}</b> · {new Date(m.created_at).toLocaleString("en-NG")}</div></div>
+      {m.url && <a className="btn sm alt" href={m.url} target="_blank" rel="noreferrer">View receipt</a>}
+      <form action={reviewPay}><input type="hidden" name="id" value={m.id} /><input type="hidden" name="ok" value="1" /><button className="btn sm">Money received, approve</button></form>
+      <form action={reviewPay}><input type="hidden" name="id" value={m.id} /><input type="hidden" name="ok" value="0" /><button className="btn sm alt">Reject</button></form></div>)) : <p className="meta">No receipts waiting.</p>}
     <h3>Withdrawal requests</h3>
     {wds?.length ? wds.map((x) => (<div key={x.id} className="li"><div style={{ flex: 1, minWidth: 220 }}><b>{naira(x.amount - x.fee)}</b> <span className="meta">(request {naira(x.amount)}, fee {naira(x.fee)})</span>
       <div className="meta">{x.bank} · {x.account_number} · {x.account_name}</div></div>

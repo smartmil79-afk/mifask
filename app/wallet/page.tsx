@@ -3,7 +3,6 @@ import Link from "next/link";
 import { supabaseServer } from "@/lib/supabase/server";
 import { naira, TOKEN_COST, PLANS, BANKS } from "@/lib/constants";
 import ClaimButton from "@/components/ClaimButton";
-import FundForm from "@/components/FundForm";
 export const dynamic = "force-dynamic";
 async function close(fd: FormData) {
   "use server";
@@ -28,6 +27,7 @@ export default async function Wallet({ searchParams }: { searchParams: { e?: str
   const { data: orders } = await s.from("orders").select("*").order("created_at", { ascending: false }).limit(20);
   const { data: bank } = await s.from("bank_accounts").select("*").eq("user_id", user.id).maybeSingle();
   const { data: wd } = await s.from("withdrawals").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(10);
+  const { data: mp } = await s.from("manual_payments").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(10);
   const today = new Date().toLocaleDateString("en-CA", { timeZone: "Africa/Lagos" });
   const claimed = w?.last_claim === today, streak = w?.streak ?? 0;
   const nextDay = claimed ? streak + 1 : (w?.last_claim && new Date(w.last_claim).getTime() >= Date.now() - 2 * 864e5 ? streak + 1 : 1);
@@ -43,7 +43,11 @@ export default async function Wallet({ searchParams }: { searchParams: { e?: str
     <div className="box" style={{ maxWidth: "none" }}><h3 style={{ marginTop: 0 }}>Daily tokens</h3>
       <p className="meta">Claim 1 token every day (day {nextDay % 7 === 0 ? `${nextDay} pays 4` : `${nextDay} pays 1`}). Spend tokens on sponsored ads: {(Object.keys(PLANS) as (keyof typeof PLANS)[]).map((k) => `${PLANS[k].name} ${TOKEN_COST[k]}`).join(" · ")}.</p>
       <ClaimButton claimed={claimed} /></div>
-    <div className="box" style={{ maxWidth: "none" }}><h3 style={{ marginTop: 0 }}>Add money</h3><FundForm /></div>
+    <div className="box" style={{ maxWidth: "none" }}><h3 style={{ marginTop: 0 }}>Add money</h3>
+      <p className="meta">Send a bank transfer, upload your receipt, and we credit your wallet after we confirm the money.</p>
+      <Link className="btn" href="/pay?kind=topup">Add money by bank transfer</Link>
+      {mp?.map((x) => <div key={x.id} className="meta" style={{ marginTop: 8 }}>{new Date(x.created_at).toLocaleDateString("en-NG")} · {x.kind === "promo" ? `Promotion: ${x.ad_title ?? ""}` : "Wallet top-up"} · {naira(x.amount)} · <b>{x.status === "pending" ? "waiting for confirmation" : x.status}</b>{x.note ? ` (${x.note})` : ""}</div>)}
+    </div>
     <div className="box" style={{ maxWidth: "none" }}><h3 style={{ marginTop: 0 }}>Withdraw to bank</h3>
       <form action={saveBank}>
         <input className="f" list="banks" name="bank" required placeholder="Bank" defaultValue={bank?.bank} />

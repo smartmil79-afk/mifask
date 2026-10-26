@@ -103,7 +103,7 @@ begin
   end if;
 end $$;
 
--- Called only by the server (Paystack webhook) with the service-role key.
+-- Called only by the server (and by review_manual_payment) and never by users.
 create function fund_wallet(p_user uuid, p_amount bigint, p_ref text) returns void language plpgsql security definer set search_path = public as $$
 begin
   insert into wallet_tx(user_id, kind, amount, ref, note) values (p_user, 'fund', p_amount, p_ref, 'Wallet top-up');

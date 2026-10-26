@@ -10,6 +10,8 @@ export default async function Dashboard() {
   const s = supabaseServer(); const { data: { user } } = await s.auth.getUser(); if (!user) redirect("/login");
   const { data: ads } = await s.from("ads").select("*, promotions(plan, status, ends_at)").eq("seller_id", user.id).order("created_at", { ascending: false });
   const now = Date.now();
+  const { data: pm } = await s.from("manual_payments").select("ad_id").eq("user_id", user.id).eq("status", "pending").eq("kind", "promo");
+  const pending = new Set((pm ?? []).map((x) => x.ad_id));
   const active = (a: any) => a.promotions?.filter((p: any) => p.status === "paid" && new Date(p.ends_at).getTime() > now).sort((x: any, y: any) => +new Date(y.ends_at) - +new Date(x.ends_at))[0];
   const nActive = ads?.filter(active).length ?? 0, views = ads?.reduce((n, a) => n + a.views, 0) ?? 0;
   return (<>
@@ -19,7 +21,7 @@ export default async function Dashboard() {
     {ads?.length ? ads.map((a) => { const p = active(a); return (<div key={a.id} className="li">
       <div className="pic" style={{ width: 64, height: 64, fontSize: "1.5rem", borderRadius: 12, overflow: "hidden" }}>{a.images?.[0] ? <img src={a.images[0]} alt="" /> : "📦"}</div>
       <div style={{ flex: 1, minWidth: 160 }}><b>{a.title}</b><div className="meta">{naira(a.price)} · {a.views} views</div>
-        <div className="meta">{p ? <><span className="badge">★ {p.plan}</span>until {new Date(p.ends_at).toLocaleDateString("en-NG")}</> : "Not promoted"}</div></div>
+        <div className="meta">{p ? <><span className="badge">★ {p.plan}</span>until {new Date(p.ends_at).toLocaleDateString("en-NG")}</> : pending.has(a.id) ? "⏳ Payment being checked" : "Not promoted"}</div></div>
       <PromoteButton adId={a.id} /><Link className="btn sm alt" href={`/ads/${a.id}`}>View</Link>
       <form action={toggleSold}><input type="hidden" name="id" value={a.id} /><input type="hidden" name="v" value={a.sold ? "0" : "1"} /><button className="btn sm alt">{a.sold ? "Relist" : "Mark sold"}</button></form>
       <form action={del}><input type="hidden" name="id" value={a.id} /><button className="btn sm alt">Delete</button></form></div>); }) : <p className="meta">No ads yet. Post your first one, it’s free.</p>}

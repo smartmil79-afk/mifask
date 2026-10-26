@@ -18,3 +18,5 @@ export const condText = (cat: string, cond: string) => {
   const f = CAT_FIELD[cat]; if (!f) return cond;
   return cond === "Brand new" || cond === "Used" ? "" : `${f.label}: ${cond}`;
 };
+// EDIT THESE before launch: the bank account where customers send transfers.
+export const BANK_DETAILS = { bank: "Opay", number: "8121483131", name: "Muammil Akilu Idris" };

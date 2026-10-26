@@ -1,58 +1,45 @@
 # Mifask setup: Supabase, GitHub and Vercel
 
-You need: Node.js 20+, Git, and free accounts on Supabase, GitHub, Vercel and Paystack.
+You need: Node.js 20+, Git, and free accounts on Supabase, GitHub and Vercel.
 
-## 1. Create the Supabase project
-1. supabase.com > New project. Pick the closest region offered and save the database password.
-2. Open **SQL Editor** > New query. Paste and Run each file from the `supabase/` folder, **in this order**:
-   `schema.sql`, `admin.sql`, `wallet.sql`, `extras.sql`.
-3. **Storage** tab: confirm a public bucket named `ad-images` exists (schema.sql creates it).
-4. **Authentication > Sign In / Providers**: Email must be on. While testing you can turn off "Confirm email".
-5. Keys: click **Connect** or open **Settings > API Keys**. Copy the Project URL, the **publishable** key (`sb_publishable_...`) and the **secret** key (`sb_secret_...`). Older projects show `anon` and `service_role` instead; use those the same way.
+## Costs and plans (read first)
+- **Vercel Hobby is free but only for personal, non-commercial use.** A marketplace that takes money is commercial, so go live on **Vercel Pro (about $20 per month per user)**. Hobby is fine for testing.
+- **Supabase Free pauses a project after 1 week without activity.** For real customers use **Supabase Pro (about $25 per month)**.
+- Prices change. Check vercel.com/pricing and supabase.com/pricing before you pay.
+
+## 1. Supabase
+1. supabase.com > New project. Save the database password.
+2. SQL Editor > New query. Paste and Run each file from the `supabase/` folder **in this order**:
+   `schema.sql`, `admin.sql`, `wallet.sql`, `extras.sql`, `manual.sql`.
+3. Storage: you should see two buckets, `ad-images` (public) and `receipts` (private).
+4. Authentication > Sign In / Providers: Email on. While testing you can turn off "Confirm email".
+5. Settings > API Keys (or Connect): copy the Project URL, the publishable key (`sb_publishable_...`) and the secret key (`sb_secret_...`).
 
 ## 2. Run it on your computer
 ```
-cd mifask
-cp .env.example .env.local      # then fill in the values
+cp .env.example .env.local      # then fill in the values (Windows: copy .env.example .env.local)
 npm install
 npm run dev                     # http://localhost:3000
 npm run build                   # check for errors before deploying
 ```
-Sign up, then make yourself admin (SQL Editor, use your email):
+Make yourself admin (SQL Editor, use your email):
 ```
 update profiles set is_admin = true where id = (select id from auth.users where email = 'you@example.com');
 ```
 
-## 3. Put the code on GitHub
-1. github.com > New repository. Name it `mifask`, choose Private, do NOT add a README.
-2. In the `mifask` folder:
-```
-git init
-git add .
-git commit -m "Mifask first version"
-git branch -M main
-git remote add origin https://github.com/YOUR-USERNAME/mifask.git
-git push -u origin main
-```
-`.env.local` is ignored by `.gitignore`, so your keys are not uploaded. Check with `git status` before committing.
+## 3. Your bank account
+Open `lib/constants.ts` and edit `BANK_DETAILS` (bank, account number, account name). Customers will see it when they pay.
 
-## 4. Host on Vercel
-1. vercel.com > sign in with GitHub > Add New > Project > import `mifask`.
-2. Add the 5 environment variables from `.env.example`. Set `NEXT_PUBLIC_SITE_URL` to your Vercel address (for example `https://mifask.vercel.app`).
-3. Deploy. Every `git push` to `main` redeploys automatically.
-4. Supabase > **Authentication > URL Configuration**: set Site URL to your Vercel address and add it under Redirect URLs.
-5. Paystack > **Settings > API Keys & Webhooks**: set the webhook URL to `https://YOUR-SITE/api/paystack/webhook`.
-6. Test: sign up, post an ad with photos, add ₦100 to the wallet with a Paystack test card, claim tokens.
+## 4. GitHub and Vercel
+Push to a private GitHub repository, import it in Vercel, add the 4 environment variables from `.env.example`, set `NEXT_PUBLIC_SITE_URL` to your Vercel address, deploy, then in Supabase > Authentication > URL Configuration set the Site URL to the same address.
 
-## 5. Before real customers
-- Switch to Paystack live keys after your business is verified, and update `PAYSTACK_SECRET_KEY` in Vercel, then redeploy.
-- Supabase's built-in email sender is for testing and is rate limited. Add your own SMTP provider under Authentication before launch.
-- Replace the placeholder email, phone and social handles in `components/Footer.tsx`.
-- Have a lawyer review `terms` and `privacy`, and check the rules for holding customer money in Nigeria.
-- Custom domain: Vercel > Settings > Domains. Then update `NEXT_PUBLIC_SITE_URL`, the Supabase URLs and the Paystack webhook.
+## 5. How manual payments work
+1. A seller picks a plan (or a wallet top-up), sees your bank details, transfers the money and uploads the receipt with its transaction ID.
+2. You open **Admin > Payment receipts to confirm**, check **your bank account**, then press **Money received, approve**.
+3. The ad enters the top 5 (or the wallet is credited). Reject if the money did not arrive.
+Never approve from the receipt image alone: images can be faked. The same transaction ID cannot be submitted twice.
 
-## Troubleshooting
-- "function ... does not exist": a SQL file was skipped or run out of order.
-- Photos fail to upload: check the `ad-images` bucket exists and is public.
-- Wallet not credited after payment: webhook URL wrong, or `PAYSTACK_SECRET_KEY` differs from the key that took the payment.
-- Admin link missing: run the admin SQL above, then sign out and in.
+## Before real customers
+- Supabase's built-in email is rate limited. Add your own SMTP provider under Authentication.
+- Replace the placeholder social handles in `components/Footer.tsx`.
+- Have a lawyer review Terms and Privacy, and check the rules for holding customer money in Nigeria.
