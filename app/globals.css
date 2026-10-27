@@ -341,3 +341,14 @@ img{max-width:100%}
 .trust .ic{font-size:1.15rem}
 .pic{font-size:2.4rem}
 @media(max-width:560px){.tiles{grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}.tile{font-size:.64rem;padding:8px 2px;line-height:1.15}.tile .ic{width:30px;height:30px;font-size:.95rem}}
+
+/* responsive fix: stop the sponsored carousel from widening the page on phones */
+.split>*{min-width:0}
+.main,.rail,.carw{min-width:0;max-width:100%}
+.carw{overflow:hidden}
+.wrap{width:100%}
+@media(max-width:1000px){.split{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:560px){.card .info{padding:10px 10px 12px}.card .meta{font-size:.72rem}}
+/* header was flush with the screen edge: keep side padding */
+header .bar{padding-left:16px;padding-right:16px}
+@media(max-width:1000px){.rail{padding:12px 12px 2px!important}.rail .tools h2{padding-left:2px}}
