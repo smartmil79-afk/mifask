@@ -5,26 +5,32 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { naira } from "@/lib/constants";
 export const dynamic = "force-dynamic";
 
-async function guard() {
+async function who() {
   const s = supabaseServer(); const { data: { user } } = await s.auth.getUser();
   if (!user) redirect("/login");
-  const { data: me } = await s.from("profiles").select("is_admin").eq("id", user.id).single();
-  if (!me?.is_admin) redirect("/");
+  const { data: me } = await s.from("profiles").select("is_admin, is_super").eq("id", user.id).single();
+  if (!me?.is_admin && !me?.is_super) redirect("/");
   const { data: aal } = await s.auth.mfa.getAuthenticatorAssuranceLevel();
   if (aal && aal.nextLevel === "aal2" && aal.currentLevel !== "aal2") redirect("/login");
-  return s;
+  return { s, isSuper: !!me.is_super };
 }
+async function guard() { return (await who()).s; }
+async function guardSuper() { const x = await who(); if (!x.isSuper) redirect("/admin"); return x.s; }
 async function removeAd(fd: FormData) { "use server"; const s = await guard(); await s.from("ads").delete().eq("id", fd.get("id") as string); revalidatePath("/admin"); }
 async function dismiss(fd: FormData) { "use server"; const s = await guard(); await s.from("reports").delete().eq("id", fd.get("id") as string); revalidatePath("/admin"); }
 
-async function settle(fd: FormData) { "use server"; const s = await guard(); await s.rpc("close_order", { p_order: fd.get("id") as string, p_release: fd.get("release") === "1" }); revalidatePath("/admin"); }
+async function settle(fd: FormData) { "use server"; const s = await guardSuper(); await s.rpc("close_order", { p_order: fd.get("id") as string, p_release: fd.get("release") === "1" }); revalidatePath("/admin"); }
 
-async function payout(fd: FormData) { "use server"; const s = await guard(); await s.rpc("settle_withdrawal", { p_id: fd.get("id") as string, p_paid: fd.get("paid") === "1" }); revalidatePath("/admin"); }
+async function payout(fd: FormData) { "use server"; const s = await guardSuper(); await s.rpc("settle_withdrawal", { p_id: fd.get("id") as string, p_paid: fd.get("paid") === "1" }); revalidatePath("/admin"); }
 
-async function reviewPay(fd: FormData) { "use server"; const s = await guard(); await s.rpc("review_manual_payment", { p_id: fd.get("id") as string, p_ok: fd.get("ok") === "1" }); revalidatePath("/admin"); }
+async function reviewPay(fd: FormData) { "use server"; const s = await guardSuper(); await s.rpc("review_manual_payment", { p_id: fd.get("id") as string, p_ok: fd.get("ok") === "1" }); revalidatePath("/admin"); }
 
-export default async function Admin() {
-  const s = await guard();
+async function addAdmin(fd: FormData) { "use server"; const s = await guardSuper(); const { error } = await s.rpc("set_admin", { p_email: String(fd.get("email")), p_make: true }); redirect("/admin" + (error ? "?e=" + encodeURIComponent(error.message) : "?m=" + encodeURIComponent("Admin added"))); }
+async function removeAdmin(fd: FormData) { "use server"; const s = await guardSuper(); const { error } = await s.rpc("set_admin", { p_email: String(fd.get("email")), p_make: false }); redirect("/admin" + (error ? "?e=" + encodeURIComponent(error.message) : "?m=" + encodeURIComponent("Admin removed"))); }
+
+export default async function Admin({ searchParams }: { searchParams: { e?: string; m?: string } }) {
+  const { s, isSuper } = await who();
+  const { data: admins } = isSuper ? await s.rpc("list_admins") : { data: [] as any[] };
   const count = async (t: string) => (await s.from(t).select("*", { count: "exact", head: true })).count ?? 0;
   const [nAds, nUsers, nReports] = await Promise.all([count("ads"), count("profiles"), count("reports")]);
   const { data: paid } = await s.from("promotions").select("amount, ends_at").eq("status", "paid");
@@ -39,7 +45,9 @@ export default async function Admin() {
   const hasMfa = !!fac?.totp?.length;
   const stats: [string, string | number][] = [["Ads", nAds], ["Users", nUsers], ["Open reports", nReports], ["Active promotions", nActive], ["Promo revenue", naira(revenue)]];
   return (<>
-    <h2 style={{ marginTop: 18 }}>Admin</h2>
+    <h2 style={{ marginTop: 18 }}>{isSuper ? "Super admin" : "Admin"}</h2>
+    {searchParams.e && <div className="note err">{searchParams.e}</div>}
+    {searchParams.m && <div className="note okbar">{searchParams.m}</div>}
     {!hasMfa && <div className="note">🔐 Protect this account: <Link href="/security" style={{ textDecoration: "underline" }}>turn on two-step login</Link>.</div>}
     <div className="grid" style={{ gridTemplateColumns: "repeat(auto-fit,minmax(140px,1fr))" }}>
       {stats.map(([l, v]) => <div key={l} className="card info"><div className="price" style={{ fontSize: "1.4rem" }}>{v}</div>{l}</div>)}</div>
@@ -50,6 +58,7 @@ export default async function Admin() {
       {r.ads && <form action={removeAd}><input type="hidden" name="id" value={r.ads.id} /><button className="btn sm">Remove ad</button></form>}
       <form action={dismiss}><input type="hidden" name="id" value={r.id} /><button className="btn sm alt">Dismiss</button></form></div>))
       : <p className="meta">No reports. All clear.</p>}
+    {isSuper && (<>
     <h3>Payment receipts to confirm</h3>
     <p className="meta">Approve ONLY after you see the money in your bank account. A receipt image alone can be faked. Check the amount and the transaction ID.</p>
     {receipts.length ? receipts.map((m) => (<div key={m.id} className="li"><div style={{ flex: 1, minWidth: 220 }}>
@@ -67,6 +76,11 @@ export default async function Admin() {
     {held?.length ? held.map((o) => (<div key={o.id} className="li"><div style={{ flex: 1, minWidth: 180 }}><b>{o.ad_title}</b><div className="meta">{naira(o.amount)} · {new Date(o.created_at).toLocaleDateString("en-NG")}</div></div>
       <form action={settle}><input type="hidden" name="id" value={o.id} /><input type="hidden" name="release" value="1" /><button className="btn sm">Pay seller</button></form>
       <form action={settle}><input type="hidden" name="id" value={o.id} /><input type="hidden" name="release" value="0" /><button className="btn sm alt">Refund buyer</button></form></div>)) : <p className="meta">No held payments.</p>}
+    <h3>Admins</h3>
+    <form action={addAdmin} style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 10 }}><input className="f" style={{ flex: 1, minWidth: 220, margin: 0 }} type="email" name="email" required placeholder="Email of an existing user" /><button className="btn">Make admin</button></form>
+    {admins?.map((x: any) => (<div key={x.id} className="li"><div style={{ flex: 1 }}><b>{x.email}</b> {x.is_super ? <span className="badge">SUPER ADMIN</span> : <span className="badge n">ADMIN</span>}</div>
+      {!x.is_super && <form action={removeAdmin}><input type="hidden" name="email" value={x.email} /><button className="btn sm alt">Remove admin</button></form>}</div>))}
+    </>)}
     <h3>Latest ads</h3>
     {recent?.map((a: any) => (<div key={a.id} className="li"><div style={{ flex: 1, minWidth: 180 }}><b>{a.title}</b><div className="meta">{naira(a.price)} · {a.state} · {a.profiles?.name}</div></div>
       <Link className="btn sm alt" href={`/ads/${a.id}`}>View</Link>

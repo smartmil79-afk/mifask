@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import AutoRefresh from "@/components/AutoRefresh";
 import { supabaseServer } from "@/lib/supabase/server";
 export const metadata = { title: "Messages" };
 export const dynamic = "force-dynamic";
@@ -10,6 +11,7 @@ export default async function Messages({ searchParams }: { searchParams: { e?: s
     .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`).order("last_at", { ascending: false });
   return (<>
     <h2 style={{ marginTop: 18 }}>Messages</h2>
+    <AutoRefresh />
     {searchParams.e && <div className="note err">{searchParams.e}</div>}
     {convs?.length ? convs.map((c: any) => {
       const mine = c.buyer_id === user.id, other = mine ? c.seller?.name : c.buyer?.name, readAt = mine ? c.buyer_read_at : c.seller_read_at;

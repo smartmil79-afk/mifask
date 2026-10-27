@@ -24,6 +24,11 @@ export default function ChatRoom({ convId, userId, other, adId, adTitle, isBuyer
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [convId, userId]);
   useEffect(() => { end.current?.scrollIntoView({ behavior: "smooth", block: "end" }); }, [msgs.length]);
+  useEffect(() => {
+    const last = msgs[msgs.length - 1];
+    if (last && last.sender_id === userId) return;
+    sb.current.rpc("mark_read", { p_conv: convId }).then(() => window.dispatchEvent(new Event("unread-refresh")));
+  }, [msgs.length, convId, userId]);
   async function send(e: React.FormEvent) {
     e.preventDefault(); const body = text.trim(); if (!body || busy) return;
     setBusy(true); setErr("");
