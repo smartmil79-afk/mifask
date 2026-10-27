@@ -46,7 +46,7 @@ export default function ChatWidget() {
   return (<>
     {teaser && !open && <button className="teaser" onClick={() => toggle(true)}>👋 Need help finding something?</button>}
     <button id="chatbtn" onClick={() => toggle(!open)} aria-label="Open help assistant">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z" /></svg>Ask Mifask</button>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z" /></svg><span className="lbl">Ask Mifask</span></button>
     <section id="chat" className={open ? "open" : ""} role="dialog" aria-label="Mifask assistant">
       <div className="ch"><div className="who"><div className="av2">M<i /></div><div><b>Mifask Assistant</b><small>Online · replies instantly</small></div></div>
         <span><a className="btn sm alt" href="/help">FAQ</a> <button className="btn sm alt" onClick={() => toggle(false)} aria-label="Close">✕</button></span></div>

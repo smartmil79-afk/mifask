@@ -16,7 +16,7 @@ export default async function Dashboard({ searchParams }: { searchParams: { veri
   const nActive = ads?.filter(active).length ?? 0, views = ads?.reduce((n, a) => n + a.views, 0) ?? 0;
   return (<>
     {searchParams.verified && <div className="note okbar" style={{ marginTop: 18 }}>✓ Email verified. Welcome to Mifask!</div>}
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", margin: "18px 0" }}><h2 style={{ margin: 0 }}>My dashboard</h2><Link className="btn" href="/post">+ Post new ad</Link></div>
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", margin: "18px 0" }}><h2 style={{ margin: 0 }}>My dashboard</h2><span style={{ display: "flex", gap: 8, flexWrap: "wrap" }}><Link className="btn alt" href="/security">🔐 Security</Link><Link className="btn" href="/post">+ Post new ad</Link></span></div>
     <div className="grid" style={{ gridTemplateColumns: "repeat(auto-fit,minmax(130px,1fr))" }}>
       {[["My ads", ads?.length ?? 0], ["Sponsored now", nActive], ["Total views", views]].map(([l, v]) => <div key={l as string} className="card info"><div className="price" style={{ fontSize: "1.6rem" }}>{v}</div>{l}</div>)}</div>
     {ads?.length ? ads.map((a) => { const p = active(a); return (<div key={a.id} className="li">

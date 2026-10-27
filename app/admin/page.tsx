@@ -10,6 +10,8 @@ async function guard() {
   if (!user) redirect("/login");
   const { data: me } = await s.from("profiles").select("is_admin").eq("id", user.id).single();
   if (!me?.is_admin) redirect("/");
+  const { data: aal } = await s.auth.mfa.getAuthenticatorAssuranceLevel();
+  if (aal && aal.nextLevel === "aal2" && aal.currentLevel !== "aal2") redirect("/login");
   return s;
 }
 async function removeAd(fd: FormData) { "use server"; const s = await guard(); await s.from("ads").delete().eq("id", fd.get("id") as string); revalidatePath("/admin"); }
@@ -33,9 +35,12 @@ export default async function Admin() {
   const { data: wds } = await s.from("withdrawals").select("*").eq("status", "pending").order("created_at");
   const { data: mps } = await s.from("manual_payments").select("*").eq("status", "pending").order("created_at");
   const receipts = await Promise.all((mps ?? []).map(async (m) => ({ ...m, url: (await s.storage.from("receipts").createSignedUrl(m.receipt_path, 3600)).data?.signedUrl })));
+  const { data: fac } = await s.auth.mfa.listFactors();
+  const hasMfa = !!fac?.totp?.length;
   const stats: [string, string | number][] = [["Ads", nAds], ["Users", nUsers], ["Open reports", nReports], ["Active promotions", nActive], ["Promo revenue", naira(revenue)]];
   return (<>
     <h2 style={{ marginTop: 18 }}>Admin</h2>
+    {!hasMfa && <div className="note">🔐 Protect this account: <Link href="/security" style={{ textDecoration: "underline" }}>turn on two-step login</Link>.</div>}
     <div className="grid" style={{ gridTemplateColumns: "repeat(auto-fit,minmax(140px,1fr))" }}>
       {stats.map(([l, v]) => <div key={l} className="card info"><div className="price" style={{ fontSize: "1.4rem" }}>{v}</div>{l}</div>)}</div>
     <h3>Reported ads</h3>

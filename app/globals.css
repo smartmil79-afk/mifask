@@ -312,3 +312,24 @@ header{border-bottom:1px solid rgba(255,255,255,.06)}
 .conv{text-decoration:none;transition:transform .2s}.conv:hover{transform:translateY(-2px)}
 .clip{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.strong{color:var(--ink);font-weight:700}
 .dot{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 6px;border-radius:99px;background:#ff5d5d;color:#fff;font-size:.7rem;font-weight:800;margin-left:6px}
+
+/* mobile polish: no bottom bar, no auto-zoom */
+html{-webkit-text-size-adjust:100%}
+html,body{overflow-x:hidden}
+img{max-width:100%}
+@media(max-width:760px){
+  body{padding-bottom:20px!important}
+  header{position:relative!important}
+  header a[href="/post"],header a[href="/dashboard"]{display:inline-block!important}
+  .bar{gap:8px;padding:10px 0}.bar .sp{display:none}
+  .bar .btn{padding:7px 12px;font-size:.82rem}
+  .bar .logo{flex:1 1 100%}
+  input,select,textarea{font-size:16px!important}
+  #chatbtn{bottom:calc(16px + env(safe-area-inset-bottom,0px));padding:14px;right:14px}
+  #chatbtn .lbl{display:none}
+  #chat{bottom:calc(76px + env(safe-area-inset-bottom,0px));right:12px;height:min(520px,calc(100vh - 110px))}
+  .teaser{bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+  .hero2{border-radius:28px;margin-top:10px}
+  .tiles{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:560px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card .t{font-size:.88rem}.pill{font-size:.8rem}}
