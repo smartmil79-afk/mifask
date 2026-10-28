@@ -1,20 +1,20 @@
-/* ===== Professional Marketplace Theme (Jumia/Amazon/eBay Style) ===== */
+/* ===== Modernist Unique Design (The "Neo-Glass" Aesthetic) ===== */
 :root {
-  --bg: #f1f2f6;            /* Light grey background for the page body */
-  --surf: #ffffff;          /* Pure white for cards/sections */
-  --ink: #111;              /* Deep black for primary text */
-  --mut: #555;              /* Medium grey for secondary text */
-  --line: #ddd;            /* Subtle borders */
-  --brand: #f68b1e;         /* Jumia Orange */
-  --brand-dark: #e67e00;
-  --deep: #232f3e;          /* Amazon Navy for Header/Footer */
-  --soft: #f8f9fa;          /* Light grey for hovers */
-  --r: 4px;                 /* Professional sharp corners */
-  --sh: 0 2px 5px rgba(0,0,0,0.1);
-  --btn: #ffd814;           /* Amazon Yellow */
-  --btn-ink: #0f1111;
+  --bg: #0f172a;            /* Deep slate blue-black background */
+  --surf: #1e293b;          /* Slate grey surface */
+  --ink: #f8fafc;           /* Off-white text */
+  --mut: #94a3b8;           /* Muted slate text */
+  --line: rgba(255, 255, 255, 0.1); /* Glassy borders */
+  --brand: #8b5cf6;         /* Vibrant Violet */
+  --brand-glow: rgba(139, 92, 246, 0.4);
+  --accent: #06b6d4;        /* Cyan accent */
+  --soft: #334155;          /* Darker slate for inputs */
+  --r: 16px;                /* Smooth, modern rounded corners */
+  --sh: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+  --btn: linear-gradient(135deg, #8b5cf6, #d946ef); /* Violet to Pink gradient */
+  --btn-ink: #fff;
   --serif: "Manrope", system-ui, sans-serif;
-  color-scheme: light;
+  color-scheme: dark;
 }
 
 body {
@@ -22,24 +22,30 @@ body {
   color: var(--ink);
   background-color: var(--bg);
   margin: 0;
-  line-height: 1.5;
+  line-height: 1.6;
+  background-image:
+    radial-gradient(circle at 0% 0%, rgba(139, 92, 246, 0.15) 0%, transparent 30%),
+    radial-gradient(circle at 100% 100%, rgba(6, 182, 212, 0.15) 0%, transparent 30%);
+  background-attachment: fixed;
 }
 
-/* --- Header & Navigation --- */
+/* --- Glassmorphic Header --- */
 header {
-  background: var(--deep);
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   color: #fff;
   position: sticky;
   top: 0;
   z-index: 100;
-  border-bottom: 1px solid rgba(0,0,0,0.2);
+  border-bottom: 1px solid var(--line);
 }
 
 .bar {
   display: flex;
-  gap: 15px;
+  gap: 20px;
   align-items: center;
-  padding: 10px 0;
+  padding: 15px 0;
   max-width: 1300px;
   margin: 0 auto;
   flex-wrap: wrap;
@@ -47,238 +53,281 @@ header {
 
 .logo {
   font-weight: 800;
-  font-size: 1.4rem;
+  font-size: 1.6rem;
   color: #fff;
   text-decoration: none;
+  letter-spacing: -0.03em;
 }
 
 .logo span {
-  color: var(--brand);
+  background: var(--btn);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-/* --- Search Bar (The Core of the Site) --- */
+/* --- Modern Search Experience --- */
 .search {
   display: flex;
-  background: #fff;
-  border-radius: 4px;
+  background: var(--surf);
+  border: 1px solid var(--line);
+  border-radius: 12px;
   overflow: hidden;
-  border: none;
+  transition: all 0.3s ease;
+  box-shadow: var(--sh);
+}
+
+.search:focus-within {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 2px var(--brand-glow);
 }
 
 .search input, .search select {
   border: none !important;
-  padding: 10px 12px;
-  font-size: 0.9rem;
+  padding: 12px 16px;
+  font-size: 0.95rem;
   color: var(--ink);
   background: transparent;
   outline: none;
 }
 
 .search select {
-  background: #f3f3f3;
-  border-right: 1px solid #ddd !important;
-  color: #666;
+  background: var(--soft);
+  border-right: 1px solid var(--line) !important;
+  color: var(--mut);
   cursor: pointer;
 }
 
 .search .btn {
-  background: var(--brand);
+  background: var(--btn);
   color: #fff;
   border: none;
-  padding: 0 20px;
+  padding: 0 24px;
   font-weight: 600;
   cursor: pointer;
+  transition: opacity 0.2s;
 }
 
-/* --- Hero Section (Fixed .hero2) --- */
+.search .btn:hover {
+  opacity: 0.9;
+}
+
+/* --- Neo-Modern Hero Section --- */
 .hero2 {
-  background: #fff;
+  background: rgba(30, 41, 59, 0.5);
   border: 1px solid var(--line);
-  border-radius: var(--r);
-  padding: 40px 20px;
-  margin: 20px auto;
-  max-width: 1200px;
+  border-radius: 24px;
+  padding: 60px 30px;
+  margin: 40px auto;
+  max-width: 1100px;
   text-align: center;
-  position: relative;
+  backdrop-filter: blur(10px);
+  box-shadow: var(--sh);
 }
 
-/* Remove the floating orbs */
-.orb { display: none !important; }
+.orb {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  filter: blur(80px);
+  z-index: -1;
+  opacity: 0.4;
+}
+
+.o1 { top: -100px; left: -100px; background: var(--brand); }
+.o2 { bottom: -100px; right: -100px; background: var(--accent); }
 
 .eyebrow {
-  display: block;
-  font-size: 0.85rem;
-  font-weight: 600;
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 700;
   color: var(--brand);
-  margin-bottom: 8px;
+  margin-bottom: 12px;
   text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
 
 .hero2 h1 {
-  font-size: 2.2rem;
+  font-size: 3rem;
   color: var(--ink);
-  margin: 0 0 20px 0;
-  line-height: 1.2;
-}
-
-.grad {
-  color: var(--brand);
+  margin: 0 0 25px 0;
+  line-height: 1.1;
   font-weight: 800;
 }
 
+.grad {
+  background: var(--btn);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
 .search.big {
-  max-width: 700px;
+  max-width: 650px;
   margin: 0 auto;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
 .pops {
-  margin-top: 15px;
-  font-size: 0.85rem;
+  margin-top: 20px;
+  font-size: 0.9rem;
   color: var(--mut);
 }
 
 .pops a {
-  margin: 0 8px;
-  color: var(--brand);
+  margin: 0 10px;
+  color: var(--ink);
   text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.pops a:hover {
+  color: var(--brand);
 }
 
 .trust {
   display: flex;
   justify-content: center;
-  gap: 30px;
-  margin-top: 30px;
+  gap: 40px;
+  margin-top: 40px;
 }
 
 .trust div {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   text-align: left;
-  font-size: 0.85rem;
 }
 
-.trust .ic { font-size: 1.5rem; }
+.trust b { display: block; color: #fff; font-size: 0.95rem; }
+.trust span { display: block; color: var(--mut); font-size: 0.8rem; }
 
-/* --- Category Tiles --- */
+/* --- Category Tiles (Floating Pills) --- */
 .tiles {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   justify-content: center;
-  margin: 20px 0;
+  margin: 30px 0;
   flex-wrap: wrap;
 }
 
 .tile {
-  background: #fff;
+  background: var(--surf);
   border: 1px solid var(--line);
-  padding: 8px 16px;
-  border-radius: var(--r);
-  font-size: 0.85rem;
-  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 500;
   color: var(--mut);
   text-decoration: none;
   display: flex;
   align-items: center;
-  gap: 6px;
-  transition: all 0.2s;
+  gap: 8px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .tile.on {
-  background: var(--brand);
+  background: var(--btn);
   color: #fff;
-  border-color: var(--brand);
+  border-color: transparent;
+  box-shadow: 0 0 20px var(--brand-glow);
 }
 
 .tile:hover:not(.on) {
   border-color: var(--brand);
-  color: var(--brand);
+  color: #fff;
+  transform: translateY(-2px);
 }
 
-/* --- Product Grid --- */
+/* --- Product Grid & Glass Cards --- */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 15px;
-  margin: 20px 0;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 25px;
+  margin: 30px 0;
 }
 
 .card {
-  background: #fff;
+  background: var(--surf);
   border: 1px solid var(--line);
-  border-radius: var(--r);
-  transition: box-shadow 0.2s;
+  border-radius: 20px;
+  transition: all 0.3s ease;
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  backdrop-filter: blur(5px);
 }
 
 .card:hover {
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+  border-color: var(--brand);
 }
 
 .pic {
   aspect-ratio: 1/1;
-  background: #f9f9f9;
+  background: var(--soft);
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
 }
 
 .info {
-  padding: 12px;
+  padding: 20px;
 }
 
 .t {
-  font-size: 0.9rem;
-  font-weight: 500;
-  margin-bottom: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 10px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  min-height: 2.6rem;
+  min-height: 2.8rem;
 }
 
 .price {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: var(--ink);
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--brand);
 }
 
-/* --- Layout Split --- */
+/* --- Sidebar (Rail) --- */
 .split {
   display: grid;
-  grid-template-columns: 1fr 300px;
-  gap: 20px;
+  grid-template-columns: 1fr 320px;
+  gap: 30px;
   max-width: 1300px;
   margin: 0 auto;
 }
 
 .rail {
-  background: #fff;
+  background: var(--surf);
   border: 1px solid var(--line);
-  border-radius: var(--r);
-  padding: 15px;
+  border-radius: 24px;
+  padding: 20px;
+  box-shadow: var(--sh);
 }
 
 .listhead {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
 .sorts a {
   font-size: 0.8rem;
-  padding: 4px 10px;
+  padding: 6px 12px;
   border: 1px solid var(--line);
-  border-radius: 4px;
-  background: #fff;
-  margin-left: 5px;
+  border-radius: 8px;
+  background: var(--soft);
+  margin-left: 8px;
   text-decoration: none;
   color: var(--mut);
+  transition: all 0.2s;
 }
 
 .sorts a.on {
@@ -289,28 +338,37 @@ header {
 
 /* --- Footer --- */
 footer {
-  background: var(--deep);
-  color: #ccc;
-  padding: 40px 0;
-  margin-top: 50px;
+  background: #0a0f1d;
+  color: var(--mut);
+  padding: 60px 0;
+  margin-top: 80px;
+  border-top: 1px solid var(--line);
 }
 
 footer h3 {
   color: #fff;
-  margin-bottom: 15px;
+  font-size: 1.1rem;
+  margin-bottom: 20px;
 }
 
 footer a {
   display: block;
-  color: #aaa;
+  color: var(--mut);
   text-decoration: none;
-  font-size: 0.85rem;
-  margin-bottom: 8px;
+  font-size: 0.9rem;
+  margin-bottom: 12px;
+  transition: color 0.2s;
 }
 
-/* --- Mobile --- */
+footer a:hover {
+  color: var(--brand);
+}
+
+/* --- Responsive --- */
 @media(max-width: 760px) {
   .split { grid-template-columns: 1fr; }
-  .hero2 h1 { font-size: 1.5rem; }
+  .hero2 { padding: 40px 20px; margin: 20px; }
+  .hero2 h1 { font-size: 2rem; }
   .bar { padding: 10px; justify-content: center; }
+  .trust { flex-direction: column; gap: 20px; }
 }
