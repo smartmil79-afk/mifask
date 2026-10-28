@@ -2,7 +2,7 @@ import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ChatWidget from "@/components/ChatWidget";
-export const viewport = { width: "device-width", initialScale: 1, colorScheme: "dark", themeColor: "#0b0b0c" };
+export const viewport = { width: "device-width", initialScale: 1, colorScheme: "light", themeColor: "#fff6fa" };
 export const metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
   title: { default: "Mifask – Buy and sell anything in Nigeria", template: "%s | Mifask" },
