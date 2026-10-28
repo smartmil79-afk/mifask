@@ -1,7 +1,7 @@
 :root{--bg:#fff6fa;--surf:#fff;--ink:#241447;--mut:#76698f;--line:#f3dcea;--brand:#f0287a;--brand2:#ff8a00;--deep:#2b1a78;--soft:#ffe3ef}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,sans-serif;line-height:1.45}
 a{color:inherit;text-decoration:none}.wrap{max-width:1200px;margin:auto;padding:0 16px}
-header{background:var(--deep);color:#fff;position:sticky;top:0;z-index:10}.bar{display:flex;gap:10px;align-items:center;padding:12px 0;flex-wrap:wrap}
+header{background:var(--deep);color:#fff;position:sticky;top:0;z-index:10}.bar{display:flex;gap:10px;align-items:center;padding:8px 0;flex-wrap:wrap}
 .logo{font-weight:800;font-size:1.5rem}.logo i{font-style:normal;color:var(--brand2)}.sp{flex:1}
 .btn{display:inline-block;border:0;border-radius:999px;padding:10px 18px;font-weight:800;cursor:pointer;background:linear-gradient(90deg,var(--brand),var(--brand2));color:#fff;font-size:1rem}
 .btn.alt{background:var(--soft);color:var(--brand)}.btn.nav{background:rgba(255,255,255,.14)}.btn.sm{padding:6px 12px;font-size:.8rem}
@@ -21,8 +21,8 @@ header{background:var(--deep);color:#fff;position:sticky;top:0;z-index:10}.bar{d
 footer{background:var(--deep);color:#e9e1ff;margin-top:30px;padding:30px 0}footer .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:24px}
 footer h3{margin:0 0 8px;color:#fff}footer a{display:block;color:#ffd2e6;margin:4px 0}
 /* ===== Jumia-inspired Light Theme ===== */
-:root{--bg:#f5f5f5;--surf:#fff;--ink:#313133;--mut:#75757a;--line:#e0e0e0;--brand:#f68b1e;--brand2:#ffb700;--deep:#f1f1f2;--soft:#fafafa;--r:8px;--sh:0 2px 4px rgba(0,0,0,.08);--btn:linear-gradient(180deg,#ff9900,#f68b1e);--btn-ink:#fff;--serif:"Manrope",system-ui,sans-serif;color-scheme:light}
-body{font-family:"Manrope",system-ui,sans-serif;color:var(--ink);background:#f5f5f5 fixed}
+:root{--bg:#fff;--surf:#fff;--ink:#313133;--mut:#75757a;--line:#e0e0e0;--brand:#f68b1e;--brand2:#ffb700;--deep:#f1f1f2;--soft:#fafafa;--r:8px;--sh:0 2px 4px rgba(0,0,0,.08);--btn:linear-gradient(180deg,#ff9900,#f68b1e);--btn-ink:#fff;--serif:"Manrope",system-ui,sans-serif;color-scheme:light}
+body{font-family:"Manrope",system-ui,sans-serif;color:var(--ink);background:#fff fixed}
 h1,h2,h3,.stat b,.price,.info .price{font-family:var(--serif);font-weight:500;letter-spacing:-.02em}
 body::before{background:#0b0b0c}
 header{background:#fff;color:var(--ink);position:sticky;top:0;z-index:10;border-bottom:1px solid var(--line)}
@@ -36,7 +36,7 @@ header{background:#fff;color:var(--ink);position:sticky;top:0;z-index:10;border-
 header .search input,header .search select{background:transparent;border:0;color:var(--ink)}
 header .search input::placeholder,.f::placeholder,.search input::placeholder{color:var(--mut)}
 select option{background:#1d1d21;color:#f3f3f5}
-.hero{background:linear-gradient(180deg,#ffb700 0%,#f68b1e 100%);color:#fff;box-shadow:var(--sh);border:1px solid var(--line)}
+.hero{background:linear-gradient(180deg,#ffb700 0%,#f68b1e 100%);color:#fff;box-shadow:var(--sh);border:1px solid var(--line);padding:20px 24px;margin:12px 0}
 .hero h1{font-weight:500;line-height:1.05}.hero p{color:#d5d5da}
 .card,.stat,.li,.box,.empty{background:var(--surf);box-shadow:var(--sh);border:1px solid var(--line);border-radius:var(--r)}
 .card.sp{outline:2px solid #e9e9ee;outline-offset:-2px;border-color:transparent}
