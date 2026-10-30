@@ -2,7 +2,7 @@ import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ChatWidget from "@/components/ChatWidget";
-export const viewport = { width: "device-width", initialScale: 1, colorScheme: "light", themeColor: "#fff6fa" };
+export const viewport = { width: "device-width", initialScale: 1, colorScheme: "light dark", themeColor: "#ffffff" };
 export const metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
   title: { default: "Mifask – Buy and sell anything in Nigeria", template: "%s | Mifask" },
@@ -10,5 +10,5 @@ export const metadata = {
   openGraph: { siteName: "Mifask", type: "website" },
 };
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (<html lang="en"><head><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" /></head><body><Header /><div className="wrap">{children}</div><Footer /><ChatWidget /></body></html>);
+  return (<html lang="en" data-theme="light" suppressHydrationWarning><head><script dangerouslySetInnerHTML={{ __html: "try{document.documentElement.dataset.theme=localStorage.getItem('mf_theme')||'light'}catch(e){}" }} /><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" /></head><body><Header /><div className="wrap">{children}</div><Footer /><ChatWidget /></body></html>);
 }

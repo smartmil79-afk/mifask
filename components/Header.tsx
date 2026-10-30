@@ -3,6 +3,7 @@ import { supabaseServer } from "@/lib/supabase/server";
 import Logo from "./Logo";
 import SignOut from "./SignOut";
 import UnreadBadge from "./UnreadBadge";
+import ThemeToggle from "./ThemeToggle";
 export default async function Header() {
   const s = supabaseServer();
   const { data: { user } } = await s.auth.getUser();
@@ -12,7 +13,7 @@ export default async function Header() {
     <header><div className="wrap bar">
       <Link href="/" className="logo"><Logo /><span>Mifask</span></Link><span className="sp" />
       {user ? (<><Link className="btn nav" href="/wallet">🪙 {w?.tokens ?? 0} · ₦{Number(w?.balance ?? 0).toLocaleString("en-NG")}</Link><Link className="btn nav" href="/messages">💬<UnreadBadge /></Link>{isAdmin && <Link className="btn nav" href="/admin">Admin</Link>}<Link className="btn nav" href="/dashboard">Dashboard</Link><SignOut /></>) : <Link className="btn nav" href="/login">Sign in</Link>}
-      <Link className="btn" href="/post">+ Sell</Link>
+      <ThemeToggle /><Link className="btn" href="/post">+ Sell</Link>
     </div></header>
   );
 }
