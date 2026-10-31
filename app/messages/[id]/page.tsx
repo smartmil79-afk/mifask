@@ -11,5 +11,5 @@ export default async function Room({ params }: { params: { id: string } }) {
   const { data: msgs } = await s.from("messages").select("*").eq("conversation_id", c.id).order("created_at").limit(200);
   await s.rpc("mark_read", { p_conv: c.id });
   const isBuyer = c.buyer_id === user.id;
-  return <ChatRoom convId={c.id} userId={user.id} other={(isBuyer ? c.seller?.name : c.buyer?.name) || "Member"} adId={c.ad_id} adTitle={c.ad_title} isBuyer={isBuyer} initial={msgs ?? []} />;
+  return <ChatRoom convId={c.id} userId={user.id} other={(isBuyer ? (!c.ad_id && c.ad_title === "Mifask Support" ? "Mifask Support" : c.seller?.name) : c.buyer?.name) || "Member"} adId={c.ad_id} adTitle={c.ad_title} isBuyer={isBuyer} initial={msgs ?? []} />;
 }

@@ -12,7 +12,7 @@ export default function Login() {
     try {
       if (mode === "in") {
         const { error } = await sb.auth.signInWithPassword({ email, password });
-        if (error) { setErr(/confirm/i.test(error.message) ? "Please verify your email first. Check your inbox and spam folder." : error.message); return; }
+        if (error) { setErr(/banned/i.test(error.message) ? "Your account has been suspended. Please contact mifask@proton.me." : /confirm/i.test(error.message) ? "Please verify your email first. Check your inbox and spam folder." : error.message); return; }
         const { data: a } = await sb.auth.mfa.getAuthenticatorAssuranceLevel();
         if (a && a.nextLevel === "aal2" && a.currentLevel !== "aal2") { setNeedMfa(true); return; }
         location.href = "/dashboard"; return;

@@ -14,7 +14,7 @@ export default async function Messages({ searchParams }: { searchParams: { e?: s
     <AutoRefresh />
     {searchParams.e && <div className="note err">{searchParams.e}</div>}
     {convs?.length ? convs.map((c: any) => {
-      const mine = c.buyer_id === user.id, other = mine ? c.seller?.name : c.buyer?.name, readAt = mine ? c.buyer_read_at : c.seller_read_at;
+      const mine = c.buyer_id === user.id, support = !c.ad_id && c.ad_title === "Mifask Support", other = mine ? (support ? "Mifask Support" : c.seller?.name) : c.buyer?.name, readAt = mine ? c.buyer_read_at : c.seller_read_at;
       const unread = c.last_sender && c.last_sender !== user.id && new Date(c.last_at) > new Date(readAt);
       return (<Link key={c.id} href={`/messages/${c.id}`} className="li conv">
         <div className="av">{(other || "M")[0].toUpperCase()}</div>
