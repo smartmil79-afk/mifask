@@ -23,3 +23,5 @@ export const condText = (cat: string, cond: string) => {
 export const BANK_DETAILS = { bank: "Opay", number: "8121483131", name: "Muammil Akilu Idris" };
 export const CAT_ICONS: Record<string, string> = { Vehicles: "🚗", Property: "🏠", "Phones & Tablets": "📱", Electronics: "💻", Fashion: "👗", "Home & Garden": "🛋️", Services: "🔧", Animals: "🐕", Jobs: "💼" };
 export const POPULAR = ["iPhone", "Toyota Camry", "Laptop", "Generator", "Plumber", "3 bedroom flat"];
+export const PLACEHOLDER: Record<string, string> = { Vehicles: "/placeholders/vehicles.svg", Property: "/placeholders/property.svg", "Phones & Tablets": "/placeholders/phones.svg", Electronics: "/placeholders/electronics.svg", Fashion: "/placeholders/fashion.svg", "Home & Garden": "/placeholders/home.svg", Services: "/placeholders/services.svg", Animals: "/placeholders/animals.svg", Jobs: "/placeholders/jobs.svg", default: "/placeholders/default.svg" };
+export const imgFor = (ad: { images?: string[]; category?: string }) => ad.images?.[0] || PLACEHOLDER[ad.category ?? ""] || PLACEHOLDER.default;

@@ -55,7 +55,7 @@ export default function ChatWidget() {
           {m.faq && <><b>{m.faq.q}</b>{"\n"}<Typed text={m.faq.a} anim={m.anim} open={open} /></>}
           {m.text && (m.who === "b" ? <Typed text={m.text} anim={m.anim} open={open} /> : m.text)}
           {m.ads?.map((a, k) => <a key={a.id} className="prod" style={{ animationDelay: `${300 + k * 110}ms` }} href={`/ads/${a.id}`}>
-            {a.images?.[0] ? <img src={a.images[0]} alt="" /> : <span className="th">📦</span>}<span className="pt"><b>{a.title}</b><small>{a.state}</small></span><b>{naira(a.price)}</b></a>)}
+            {a.images?.[0] ? <img src={a.images[0]} alt="" /> : <img src="/placeholders/default.svg" alt="" />}<span className="pt"><b>{a.title}</b><small>{a.state}</small></span><b>{naira(a.price)}</b></a>)}
           {m.faq && <div className="fb">{m.fb ? (m.fb === "up" ? "Glad that helped!" : "Thanks for telling us.") : <>Was this helpful?<button onClick={() => rate(i, "up")} aria-label="Helpful">👍</button><button onClick={() => rate(i, "down")} aria-label="Not helpful">👎</button></>}</div>}
           {(m.faq || m.chips || m.contact) && <div className="chips">
             {m.faq && <a href={`/help#${m.faq.id}`}>Open in FAQ</a>}

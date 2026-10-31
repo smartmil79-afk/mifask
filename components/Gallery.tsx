@@ -1,12 +1,12 @@
 "use client";
 import { useRef, useState } from "react";
-export default function Gallery({ images }: { images: string[] }) {
+export default function Gallery({ images, fallback }: { images: string[]; fallback?: string }) {
   const ref = useRef<HTMLDivElement>(null); const [k, setK] = useState(0);
   const go = (d: number) => ref.current?.scrollBy({ left: d * ref.current.clientWidth, behavior: "smooth" });
   return (
     <div className="gw">
       <div className="gal" ref={ref} onScroll={(e) => setK(Math.round(e.currentTarget.scrollLeft / e.currentTarget.clientWidth))}>
-        {images.length ? images.map((u) => <div key={u}><img src={u} alt="" /></div>) : <div>📦</div>}
+        {images.length ? images.map((u) => <div key={u}><img src={u} alt="" /></div>) : <div><img src={fallback || "/placeholders/default.svg"} alt="" /></div>}
       </div>
       {images.length > 1 && (<>
         <button className="arr l" onClick={() => go(-1)} aria-label="Previous">‹</button>

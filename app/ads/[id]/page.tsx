@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase/server";
-import { naira, condText } from "@/lib/constants";
+import { naira, condText, PLACEHOLDER } from "@/lib/constants";
 import Gallery from "@/components/Gallery";
 import ReportButton from "@/components/ReportButton";
 export const dynamic = "force-dynamic";
@@ -19,7 +19,7 @@ async function pay(fd: FormData) {
   const { error } = await supabaseServer().rpc("pay_for_ad", { p_ad: fd.get("id") as string });
   redirect(error ? "/wallet?e=" + encodeURIComponent(error.message) : "/wallet?paid=1");
 }
-export default async function AdPage({ params, searchParams }: { params: { id: string }; searchParams: { posted?: string } }) {
+export default async function AdPage({ params, searchParams }: { params: { id: string }; searchParams: { posted?: string; updated?: string } }) {
   const s = supabaseServer();
   const { data: ad } = await s.from("ads").select("*, profiles(name)").eq("id", params.id).single();
   if (!ad) notFound();
@@ -28,7 +28,9 @@ export default async function AdPage({ params, searchParams }: { params: { id: s
   const wa = "https://wa.me/" + ad.phone.replace(/\D/g, "").replace(/^0/, "234") + "?text=" + encodeURIComponent(`Hi, is “${ad.title}” still available?`);
   return (<div className="box" style={{ maxWidth: 700 }}>
     {searchParams.posted && <div className="note okbar">✓ Your ad is live! Buyers can now see it.</div>}
-    <Gallery images={ad.images || []} />
+    {searchParams.updated && <div className="note okbar">✓ Your ad was updated.</div>}
+    {user && user.id === ad.seller_id && <div style={{ marginBottom: 10 }}><a className="btn" href={`/ads/${ad.id}/edit`}>✏️ Edit this ad</a></div>}
+    <Gallery images={ad.images || []} fallback={PLACEHOLDER[ad.category]} />
     <div className="price" style={{ fontSize: "1.6rem" }}>{naira(ad.price)}</div><h2 style={{ margin: "4px 0" }}>{ad.title}</h2>
     <div className="meta">{[ad.category, condText(ad.category, ad.condition), ad.state].filter(Boolean).join(" · ")} · {ad.views} views</div><p>{ad.description}</p>
     <p className="meta">Seller: <b>{ad.profiles?.name || "Member"}</b></p>
