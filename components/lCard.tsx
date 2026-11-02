@@ -15,7 +15,7 @@ export default function AdCard({ ad, sponsored, compact }: { ad: any; sponsored?
     </Link>
   );
   return (
-    <Link href={`/ads/${ad.id}`} className={`card ad ${sponsored ? "sp" : ""}`}>
+    <Link href={`/ads/${ad.id}`} className={`card lcard ${sponsored ? "sp" : ""}`}>
       <div className="pic"><img src={imgFor(ad)} alt={ad.title} loading="lazy" />{sponsored && <span className="ribbon">★ Sponsored</span>}{ad.sold && <span className="ribbon sold">SOLD</span>}</div>
       <div className="info"><div className="cprice">{naira(ad.price)}</div><div className="t">{ad.title}</div>
         <div className="meta">{ct && <span className="badge n">{ct.slice(0, 26)}</span>}<span className="loc">📍 {ad.state}</span> · {ago(ad.created_at)}</div></div>
