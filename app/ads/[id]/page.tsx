@@ -8,7 +8,8 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata({ params }: { params: { id: string } }) {
   const { data: ad } = await supabaseServer().from("ads").select("title, description, price, images").eq("id", params.id).single();
   if (!ad) return { title: "Ad not found" };
-  return { title: ad.title, description: `${naira(ad.price)} · ${String(ad.description).slice(0, 140)}`, openGraph: { title: ad.title, images: [ad.images?.[0] || "/og-default.png"] }, twitter: { card: "summary_large_image" }
+  return { title: ad.title, description: `${naira(ad.price)} · ${String(ad.description).slice(0, 140)}`, openGraph: { title: ad.title, images: [ad.images?.[0] || "/og-default.png"] }, twitter: { card: "summary_large_image" } };
+}
 async function chat(fd: FormData) {
   "use server";
   const { data, error } = await supabaseServer().rpc("start_conversation", { p_ad: fd.get("id") as string });
@@ -39,7 +40,7 @@ export default async function AdPage({ params, searchParams }: { params: { id: s
     {ad.sold && <p><span className="badge">SOLD</span></p>}
     {user && user.id !== ad.seller_id && !ad.sold && (<form action={pay} style={{ marginTop: 12 }}><input type="hidden" name="id" value={ad.id} />
       <button className="btn">Pay {naira(ad.price)} with wallet</button><p className="meta">Protected: your money is held until you confirm you received the item.</p></form>)}
-     <ShareButtons url={`${process.env.NEXT_PUBLIC_SITE_URL}/ads/${ad.id}`} title={ad.title} price={naira(ad.price)} />
+    <ShareButtons url={`${process.env.NEXT_PUBLIC_SITE_URL}/ads/${ad.id}`} title={ad.title} price={naira(ad.price)} />
     {user && user.id !== ad.seller_id && <ReportButton adId={ad.id} userId={user.id} />}
   </div>);
 }
