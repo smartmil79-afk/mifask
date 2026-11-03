@@ -1,4 +1,5 @@
 "use client";
+import { saveListing } from "@/lib/listing-actions";
 import { useEffect, useMemo, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { CATS, STATES, CAT_FIELD } from "@/lib/constants";
@@ -38,17 +39,17 @@ export default function AdForm({ ad }: { ad?: Initial }) {
       const uploaded = await timeout(Promise.all(files.map(async (f) => {
         let blob: Blob; try { blob = await shrink(f); } catch { throw new Error("One of your photos could not be read. Please use a JPG or PNG photo."); }
         const path = `${user.id}/${crypto.randomUUID()}.jpg`;
-        const up = await sb.storage.from("ad-images").upload(path, blob, { contentType: "image/jpeg" });
+        const up = await sb.storage.from("listing-photos").upload(path, blob, { contentType: "image/jpeg" });
         if (up.error) throw new Error(up.error.message);
-        return sb.storage.from("ad-images").getPublicUrl(path).data.publicUrl;
+        return sb.storage.from("listing-photos").getPublicUrl(path).data.publicUrl;
       })), 60000);
       setStep("Saving…");
       const row = { title: title.trim(), category: cat, state, price: Number(price), condition: cond, description: desc.trim(), phone: phone.trim(), images: [...existing, ...uploaded] };
-      const q = editing ? sb.from("ads").update(row).eq("id", ad!.id).select("id").single() : sb.from("ads").insert({ ...row, seller_id: user.id }).select("id").single();
-      const { data, error } = await timeout(Promise.resolve(q), 20000);
-      if (error) throw new Error(/foreign key/i.test(error.message) ? "Your profile is not ready. Sign out, sign in again, or contact support." : error.message);
-      location.href = `/ads/${data.id}?${editing ? "updated" : "posted"}=1`;
-    } catch (x) { setErr(x instanceof Error ? x.message : "Could not save. Please try again."); setBusy(false); setStep(""); }
+   const res = await timeout(saveListing({ id: ad?.id, ...row }), 30000);
+     if (res.error || !res.id) throw new Error(res.error ?? "Could not save.");
+     location.href = `/ads/${res.id}?${editing ? "updated" : "posted"}=1`;
+    } 
+catch (x) { setErr(x instanceof Error ? x.message : "Could not save. Please try again."); setBusy(false); setStep(""); }
   }
   return (<form className="box" style={{ maxWidth: 640 }} onSubmit={submit}><h2 style={{ marginTop: 0 }}>{editing ? "Edit your ad" : "Post a free ad"}</h2>
     <label className="meta">Photos ({existing.length + files.length}/{MAX}){photoOptional(cat) ? " · optional" : " · at least 1"}</label>
