@@ -40,7 +40,7 @@ export default async function AdPage({ params, searchParams }: { params: { id: s
     {ad.sold && <p><span className="badge">SOLD</span></p>}
     {user && user.id !== ad.seller_id && !ad.sold && (<form action={pay} style={{ marginTop: 12 }}><input type="hidden" name="id" value={ad.id} />
       <button className="btn">Pay {naira(ad.price)} with wallet</button><p className="meta">Protected: your money is held until you confirm you received the item.</p></form>)}
-    <ShareButtons url={`${process.env.NEXT_PUBLIC_SITE_URL}/ads/${ad.id}`} title={ad.title} price={naira(ad.price)} />
+       <ShareButtons path={`/ads/${ad.id}`} title={ad.title} price={naira(ad.price)} />
     {user && user.id !== ad.seller_id && <ReportButton adId={ad.id} userId={user.id} />}
   </div>);
 }

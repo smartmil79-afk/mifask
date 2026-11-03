@@ -1,8 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
-export default function ShareButtons({ url, title, price }: { url: string; title: string; price: string }) {
-  const [copied, setCopied] = useState(false); const [canShare, setCanShare] = useState(false);
-  useEffect(() => { setCanShare(typeof navigator !== "undefined" && typeof navigator.share === "function"); }, []);
+export default function ShareButtons({ path, title, price }: { path: string; title: string; price: string }) {
+  const [copied, setCopied] = useState(false); const [canShare, setCanShare] = useState(false); const [origin, setOrigin] = useState("");
+  useEffect(() => { setOrigin(window.location.origin); setCanShare(typeof navigator !== "undefined" && typeof navigator.share === "function"); }, []);
+  const url = origin + path;
   const text = `${title} - ${price} on Mifask`;
   const u = encodeURIComponent(url), t = encodeURIComponent(text);
   const links: [string, string, string][] = [
