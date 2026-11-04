@@ -1,0 +1,1 @@
+Run supabase/update5.sql in Supabase first, then copy these files over your project (see the chat for the command). Delete app/icon.svg if it exists, because app/icon.png replaces it.

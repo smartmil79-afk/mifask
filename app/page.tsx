@@ -12,24 +12,37 @@ export default async function Home({ searchParams }: { searchParams: SP }) {
   const { data: { user } } = await s.auth.getUser();
   const { q, cat, state } = searchParams;
   const min = Number(searchParams.min) || 0, max = Number(searchParams.max) || 0;
-  const { data: promos } = await s.from("promotions").select("rank, ads(*)").eq("status", "paid").gt("ends_at", new Date().toISOString())
-    .order("rank", { ascending: false }).order("ends_at", { ascending: false }).limit(5);
+  const nowIso = new Date().toISOString();
+  const { data: active } = await s.from("promotions").select("ad_id, plan, rank").eq("status", "paid").gt("ends_at", nowIso).order("rank", { ascending: false }).limit(300);
+  const pmap = new Map<string, { plan: string; rank: number }>();
+  for (const p of (active ?? []) as any[]) if (!pmap.has(p.ad_id)) pmap.set(p.ad_id, { plan: p.plan, rank: p.rank });
+  const apply = (qq: any) => {
+    if (cat) qq = qq.eq("category", cat);
+    if (state) qq = qq.eq("state", state);
+    if (min) qq = qq.gte("price", min);
+    if (max) qq = qq.lte("price", max);
+    if (q) { const t = q.replace(/[%,]/g, ""); qq = qq.or(`title.ilike.%${t}%,description.ilike.%${t}%`); }
+    return qq;
+  };
   const pg = Math.max(1, Number(searchParams.page) || 1), size = 24 * pg;
   const sort = searchParams.sort === "low" || searchParams.sort === "high" ? searchParams.sort : "";
-  let query = s.from("ads").select("*").eq("sold", false);
-  if (cat) query = query.eq("category", cat);
-  if (state) query = query.eq("state", state);
-  if (min) query = query.gte("price", min);
-  if (max) query = query.lte("price", max);
-  if (q) { const t = q.replace(/[%,]/g, ""); query = query.or(`title.ilike.%${t}%,description.ilike.%${t}%`); }
+  let query = apply(s.from("ads").select("*")).order("sold", { ascending: true });
   query = sort === "low" ? query.order("price", { ascending: true }) : sort === "high" ? query.order("price", { ascending: false }) : query.order(user ? "created_at" : "views", { ascending: false });
-  const { data: ads } = await query.limit(size);
+  const { data: rest, error: adsError } = await query.limit(size);
+  let promoted: any[] = [];
+  if (pmap.size) {
+    const { data } = await apply(s.from("ads").select("*")).in("id", Array.from(pmap.keys())).eq("sold", false);
+    promoted = ((data ?? []) as any[]).sort((a, b) => (pmap.get(b.id)?.rank ?? 0) - (pmap.get(a.id)?.rank ?? 0));
+  }
+  const pids = new Set(promoted.map((a) => a.id));
+  const list = [...promoted, ...((rest ?? []) as any[]).filter((a) => !pids.has(a.id))];
+  const { data: railData } = await s.from("promotions").select("rank, plan, ads(*)").eq("status", "paid").gt("ends_at", nowIso).order("rank", { ascending: false }).order("ends_at", { ascending: false }).limit(8);
+  const rail = ((railData ?? []) as any[]).filter((p) => p.ads && !p.ads.sold).slice(0, 5);
   const { data: counts } = await s.rpc("category_counts");
   const cmap = new Map<string, number>(((counts ?? []) as any[]).map((c) => [c.category, Number(c.n)]));
   const total = Array.from(cmap.values()).reduce((a, b) => a + b, 0);
   const link = (o: Record<string, string>) => { const p = new URLSearchParams(); for (const [k, v] of Object.entries({ q, cat, state, sort, min: searchParams.min, max: searchParams.max, ...o })) if (v) p.set(k, v); return "/?" + p.toString(); };
-  const sp = !!promos?.length;
-  const feat = sp ? promos!.map((p: any) => ({ ad: p.ads, sp: true })) : (ads ?? []).slice(0, 5).map((a) => ({ ad: a, sp: false }));
+  const feat = rail.length ? rail.map((p) => ({ ad: p.ads, plan: p.plan, sp: true })) : list.filter((a) => !a.sold).slice(0, 5).map((a) => ({ ad: a, plan: "", sp: false }));
   const filtered = !!(q || cat || state || min || max);
   const fp = { q, cat, sort, state, min: searchParams.min, max: searchParams.max };
   return (<>
@@ -50,13 +63,14 @@ export default async function Home({ searchParams }: { searchParams: SP }) {
       </aside>
       <div className="main">
         <details className="mfilters"><summary className="btn alt sm">⚙ Filters{(state || min || max) ? " · on" : ""}</summary><div style={{ paddingTop: 10 }}><FilterForm {...fp} /></div></details>
-        <div className="listhead"><h2>{q ? `Results for “${q}”` : cat ? cat : user ? "Fresh listings" : "Latest ads"}{ads ? <span className="meta" style={{ fontWeight: 400, fontSize: ".85rem" }}> · {ads.length}{ads.length >= size ? "+" : ""} ads</span> : null}</h2>
+        <div className="listhead"><h2>{q ? `Results for “${q}”` : cat ? cat : user ? "Fresh listings" : "Latest ads"}<span className="meta" style={{ fontWeight: 400, fontSize: ".85rem" }}> · {list.length}{(rest?.length ?? 0) >= size ? "+" : ""} ads</span></h2>
           <div className="sorts">{([["", user ? "Newest" : "Trending"], ["low", "Price: low to high"], ["high", "Price: high to low"]] as [string, string][]).map(([v, l]) => <Link key={v} href={link({ sort: v })} className={sort === v ? "on" : ""}>{l}</Link>)}</div></div>
-        <div className="grid">{ads?.length ? ads.map((a) => <AdCard key={a.id} ad={a} />) : <p className="meta">No ads found. Try another search or clear the filters.</p>}</div>
-        {!!ads && ads.length >= size && <p style={{ textAlign: "center" }}><Link className="btn alt" href={link({ page: String(pg + 1) })}>Load more</Link></p>}
+        {adsError && <div className="note err">Could not load ads: {adsError.message}</div>}
+        <div className="grid">{list.length ? list.map((a) => <AdCard key={a.id} ad={a} sponsored={pmap.has(a.id)} plan={pmap.get(a.id)?.plan} />) : <p className="meta">No ads found. Try another search or clear the filters.</p>}</div>
+        {(rest?.length ?? 0) >= size && <p style={{ textAlign: "center" }}><Link className="btn alt" href={link({ page: String(pg + 1) })}>Load more</Link></p>}
       </div>
-      {!!feat.length && (<aside className="rail"><div className="tools"><h2>{sp ? "★ Top sponsored ads" : user ? "Just listed" : "🔥 Trending now"}</h2></div>
-        <Carousel>{feat.map((f) => <AdCard key={f.ad.id} ad={f.ad} sponsored={f.sp} compact />)}</Carousel></aside>)}
+      {!!feat.length && (<aside className="rail"><div className="tools"><h2>{rail.length ? "★ Top sponsored ads" : user ? "Just listed" : "🔥 Trending now"}</h2></div>
+        <Carousel>{feat.map((f) => <AdCard key={f.ad.id} ad={f.ad} sponsored={f.sp} plan={f.plan} compact />)}</Carousel></aside>)}
     </div>
     {!filtered && (<section className="how"><div><div className="n">1</div><b>Post for free</b><p>Add photos, a price and your details in under a minute.</p></div>
       <div><div className="n">2</div><b>Chat with buyers</b><p>Buyers reach you by chat, phone or WhatsApp. Meet in a public place.</p></div>
