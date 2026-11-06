@@ -5,11 +5,13 @@ import Gallery from "@/components/Gallery";
 import ReportButton from "@/components/ReportButton";
 import ShareButtons from "@/components/ShareButtons";
 import Avatar from "@/components/Avatar";
+import JsonLd from "@/components/JsonLd";
+import { siteUrl } from "@/lib/seo";
 export const dynamic = "force-dynamic";
 export async function generateMetadata({ params }: { params: { id: string } }) {
   const { data: ad } = await supabaseServer().from("ads").select("title, description, price, images").eq("id", params.id).single();
   if (!ad) return { title: "Ad not found" };
-  return { title: ad.title, description: `${naira(ad.price)} - ${String(ad.description).slice(0, 140)}`, openGraph: { title: ad.title, images: [ad.images?.[0] || "/og-default.png"] }, twitter: { card: "summary_large_image" } };
+  return { title: ad.title, description: `${naira(ad.price)} - ${String(ad.description).slice(0, 140)}`, alternates: { canonical: `/ads/${params.id}` }, openGraph: { title: ad.title, url: `/ads/${params.id}`, type: "website", images: [ad.images?.[0] || "/og-default.png"] }, twitter: { card: "summary_large_image" } };
 }
 async function chat(fd: FormData) {
   "use server";
@@ -32,7 +34,13 @@ export default async function AdPage({ params, searchParams }: { params: { id: s
   const sp = ad.profiles; const biz = sp?.account_type === "business" && sp?.business_name;
   const sname = biz ? sp.business_name : sp?.first_name || sp?.name || "Member";
   const wa = "https://wa.me/" + ad.phone.replace(/\D/g, "").replace(/^0/, "234") + "?text=" + encodeURIComponent(`Hi, is “${ad.title}” still available?`);
+  const base = siteUrl();
+  const product = { "@context": "https://schema.org", "@type": "Product", name: ad.title, description: String(ad.description).slice(0, 500), category: ad.category,
+    image: ad.images?.length ? ad.images : [`${base}/og-default.png`], brand: { "@type": "Brand", name: sname },
+    offers: { "@type": "Offer", url: `${base}/ads/${ad.id}`, priceCurrency: "NGN", price: Number(ad.price), availability: ad.sold ? "https://schema.org/SoldOut" : "https://schema.org/InStock",
+      itemCondition: ad.condition === "Brand new" ? "https://schema.org/NewCondition" : "https://schema.org/UsedCondition", areaServed: ad.state, seller: { "@type": "Person", name: sname } } };
   return (<div className="box" style={{ maxWidth: 700 }}>
+    <JsonLd data={product} />
     {searchParams.posted && <div className="note okbar">✓ Your ad is live! Buyers can now see it.</div>}
     {searchParams.updated && <div className="note okbar">✓ Your ad was updated.</div>}
     {ad.sold && <div className="soldbar">SOLD · This item is no longer available</div>}
